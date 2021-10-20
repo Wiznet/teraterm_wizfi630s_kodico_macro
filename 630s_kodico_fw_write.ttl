@@ -1,0 +1,84 @@
+;connect '/C=4 /BAUD=115200'
+setsync 1
+;Filename='d:\Users\JHG\Documents\work\Kodico\생산\teraterm.log'
+; send #숫자 는 단일 문자를 보낸다. 값은 10진수 ascii 코드값
+inputbox "장비 ip 입력" "dip"
+dip = inputstr
+inputbox "pc ip 입력" "sip"
+sip = inputstr
+inputbox '버전 입력. 예) 0.8.8' 'version' '0.8.8'
+ver = inputstr
+inputbox '이미지 이름 입력. 예) a.bin' 'img' 'a.bin'
+imgname = inputstr
+messagebox '준비가 되었으면 아래 동작을 수행하세요\nOK 누르기 >> 전원 버튼 켜기 >> 숫자 2 입력' 'Ready!!'
+wait_yn = 'Are you sure?(Y/N)'
+wait_ip = ') ==:'
+wait_enter = 'Please press Enter to activate this console.'
+wait_done = 'managerTask.py'
+imagename = 'a.bin'
+cmd1 = 'grep '
+cmd2 = 'current ='
+cmd3 = ' /root/kodicowebmodule/version.py'
+cmd_check_done = 'while true; do ps | grep python3 ; sleep 2; done'
+;msg = ''
+title = ''
+while 1
+	pause 2
+	;wait 'Please choose the operation:'
+	wait '9: Load Boot Loader code then write to Flash via TFTP.'
+	send #50
+	pause 1
+	uptime t_b
+	pause 5
+	wait 
+	send #89
+	pause 1
+	wait wait_ip
+	send #21
+	pause 1
+	sendln dip
+	wait wait_ip
+	send #21
+	pause 1
+	sendln sip
+	wait wait_ip
+	sendln 'a.bin'
+	pause 1
+	wait wait_enter
+	send #13
+	pause 1	
+	sendln cmd1 39 cmd2 39 cmd3
+	wait ver
+	sendln cmd_check_done
+	pause 10
+	wait wait_done
+	beep 4
+	pause 1
+	send #3
+	pause 1
+	uptime t_e
+	t_elapsed = t_e - t_b
+	elapsed_min = t_elapsed / 60000
+	t_temp = t_elapsed % 60000
+	elapsed_sec = t_temp / 1000
+	if result = 0 then  ;timeout
+		sprintf '%d분 %d초 소요: 1.장비 끄기. 2.모듈 교체. 3.이전 모듈 실패 표시. 4.OK 클릭 5.전원 켜기 6.부트메뉴 숫자2 누르기' elapsed_min elapsed_sec
+		title = '실패'
+		;msg = '1.장비 끄기. 2.모듈 교체. 3.이전 모듈 실패 표시. 4.OK 클릭 5.전원 켜기 6.부트메뉴 숫자2 누르기'
+		;messagebox msg title
+		messagebox inputstr title
+	elseif result = 1 then  ;managerTask.py
+		title = '성공'
+		sprintf '%d분 %d초 소요: 1.장비 끄기. 2.모듈 교체. 3.OK 클릭 4.전원 켜기 5.부트메뉴 숫자2 누르기' elapsed_min elapsed_sec
+		;msg = '1.장비 끄기. 2.모듈 교체. 3.OK 클릭 4.전원 켜기 5.부트메뉴 숫자2 누르기'
+		;messagebox msg title
+		messagebox inputstr title
+	endif
+	;messagebox msg title
+	;wait '9: Load Boot Loader code then write to Flash via TFTP.'
+	;pause 2
+	;send #50
+	;pause 1
+endwhile
+end
+
